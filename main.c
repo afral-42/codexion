@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:03 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/01 17:04:05 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/01 17:09:03 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,13 @@ void print_config(t_config *config)
     printf("================================\n");
 }
 
+int exit_init(t_config *config, pthread_t *threads)
+{
+    free(config);
+    free(threads);
+    return (1);
+}
+
 int main(int ac, char **av) {
     t_config    *config;
     pthread_t   *threads;
@@ -41,14 +48,14 @@ int main(int ac, char **av) {
 
     config = parse_params(ac, av);
     if (!config)
-        return (1);
+        return (exit_init(NULL, NULL));
     print_config(config);
     threads = init_threads(config);
-    if (!threads) {
-        free(config);
-        return (1);
-    }
-    dongles = init_dongles();
+    if (!threads)
+        return (exit_init(config, NULL));
+    dongles = init_dongles(config->number_of_coders);
+    if (!dongles)
+        return (exit_init(config, threads));
     wait_threads(threads, config->number_of_coders);
     free(config);
     free(threads);

@@ -1,33 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   dongles.c                                          :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/30 18:44:18 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/01 17:09:50 by abounoua         ###   ########lyon.fr   */
+/*   Created: 2026/07/01 17:10:01 by abounoua          #+#    #+#             */
+/*   Updated: 2026/07/01 17:14:45 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
-#include <threads.h>
-#include "dongles.h"
 
-t_dongle    *init_dongles(int count)
+#include <sys/time.h>
+#include <stddef.h>
+
+size_t  get_actual_time(int *flag)
 {
-    t_dongle    *dongles;
-    size_t      i;
+    struct timeval  actual_time;
 
-    dongles = malloc(sizeof(t_dongle) * count);
-    if (!dongles)
-        return (NULL);
-    i = 0;
-    while (i < count) {
-        pthread_mutex_init(&(dongles[i].dongle_mutex), NULL);
-        
-        i++;
+    if (gettimeofday(&actual_time, NULL) == -1)
+    {
+        *flag = 1;
+        return (0);
     }
-
-    return dongles;
+    return (actual_time.tv_sec * 1000 + actual_time.tv_usec);
 }

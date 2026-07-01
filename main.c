@@ -6,13 +6,16 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:03 by abounoua          #+#    #+#             */
-/*   Updated: 2026/06/30 15:24:18 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/01 17:04:05 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "config.h"
 #include "parsing.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include "threads.h"
+#include "dongles.h"
 
 void print_config(t_config *config)
 {
@@ -32,11 +35,21 @@ void print_config(t_config *config)
 }
 
 int main(int ac, char **av) {
-    t_config *config;
+    t_config    *config;
+    pthread_t   *threads;
+    t_dongle    *dongles;
 
     config = parse_params(ac, av);
     if (!config)
         return (1);
     print_config(config);
+    threads = init_threads(config);
+    if (!threads) {
+        free(config);
+        return (1);
+    }
+    dongles = init_dongles();
+    wait_threads(threads, config->number_of_coders);
     free(config);
+    free(threads);
 }

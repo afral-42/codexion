@@ -9,6 +9,6 @@ typedef struct s_dongle {
 } t_dongle;
 
 
-t_dongle    *init_dongles(int count);
+t_dongle    *init_dongles(size_t count);
 
 #endif

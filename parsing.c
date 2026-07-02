@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:05 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/01 16:52:00 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/02 15:47:07 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,9 @@ int parse_config_scheduler(t_config *config, char **av)
 
 t_config    *parse_params(int ac, char **av)
 {
-    size_t         i;
-    t_config    *config;
+    size_t  	i;
+    int			flag; 
+    t_config	*config;
 
     i = 1;
     config = (t_config *)malloc(sizeof(t_config));

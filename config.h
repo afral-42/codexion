@@ -3,15 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   config.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
+/*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:00 by abounoua          #+#    #+#             */
-/*   Updated: 2026/06/30 15:24:01 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/02 15:55:44 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFIG_H
 # define CONFIG_H
+
+# include <stdlib.h>
 
 typedef enum e_scheduler {
     FIFO,
@@ -19,13 +21,13 @@ typedef enum e_scheduler {
 } t_scheduler;
 
 typedef struct s_config {
-    int number_of_coders;
-    int time_to_burnout;
-    int time_to_compile;
-    int time_to_debug;
-    int time_to_refactor;
-    int number_of_compiles_required;
-    int dongle_cooldown;
+    size_t      number_of_coders;
+    size_t      time_to_burnout;
+    size_t      time_to_compile;
+    size_t      time_to_debug;
+    size_t      time_to_refactor;
+    size_t      number_of_compiles_required;
+    size_t      dongle_cooldown;
     t_scheduler scheduler;
 } t_config;
 

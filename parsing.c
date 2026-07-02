@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:05 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/02 15:47:07 by anselme          ###   ########.fr       */
+/*   Updated: 2026/07/02 18:23:05 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,10 @@
 #include <stdio.h>
 #include "config.h"
 
-void    *exit_parsing(t_config *config, char *err)
+int exit_parsing(t_config *config, char *err)
 {
     printf("Error: %s", err);
-    free(config);
-    return (NULL);
+    return (1);
 }
 
 int is_number(char *s)
@@ -56,16 +55,12 @@ int parse_config_scheduler(t_config *config, char **av)
     return (0);
 }
 
-t_config    *parse_params(int ac, char **av)
+int parse_params(int ac, char **av, t_config *config)
 {
     size_t  	i;
     int			flag; 
-    t_config	*config;
 
     i = 1;
-    config = (t_config *)malloc(sizeof(t_config));
-    if (!config)
-        return (NULL);
     if (ac != 9)
         return exit_parsing(config, "invalid arguments");
     while (i < 8) {
@@ -76,5 +71,5 @@ t_config    *parse_params(int ac, char **av)
     parse_config_numbers(config, av);
     if (parse_config_scheduler(config, av))
         return exit_parsing(config, "scheduler must be fifo or edf");
-    return config;
+    return (0);
 }

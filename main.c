@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:03 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/02 17:02:34 by anselme          ###   ########.fr       */
+/*   Updated: 2026/07/02 18:34:25 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "threads.h"
 #include "dongles.h"
 #include "coders.h"
+#include "codexion.h"
 
 void print_config(t_config *config)
 {
@@ -35,36 +36,34 @@ void print_config(t_config *config)
     printf("================================\n");
 }
 
-int exit_init(t_config *config, t_coders_args *args, pthread_t *threads)
+int exit_init(t_coders_args *args, pthread_t *threads)
 {
-    free(config);
     free(threads);
     return (1);
 }
 
 int main(int ac, char **av)
 {
-    t_config        *config;
     t_coders_args   *args;
     pthread_t       *threads;
     t_dongle        *dongles;
-
-    config = parse_params(ac, av);
-    if (!config)
-        return (exit_init(NULL, NULL, NULL));
-    print_config(config);
-    args = generate_args(config);
+    t_sim           sim;
+    
+    if (parse_params(ac, av, &(sim.config)))
+        return (1);
+    print_config(&(sim.config));
+    args = generate_args(&(sim.config));
     if (!args)
-        return (exit_init(config, NULL, NULL));
-    threads = init_threads(config, args);
+        return (exit_init(NULL, NULL));
+    threads = init_threads(&(sim.config), args);
     if (!threads)
-        return (exit_init(config, args, NULL));
-    dongles = init_dongles(config->number_of_coders);
+        return (exit_init(args, NULL));
+    dongles = init_dongles(sim.config.number_of_coders);
     if (!dongles)
-        return (exit_init(config, args, threads));
-    wait_threads(threads, config->number_of_coders);
-    free(config);
+        return (exit_init(args, threads));
+    wait_threads(threads, sim.config.number_of_coders);
     free(threads);
     free(args);
     free(dongles);
+    // To do free mutexes
 }

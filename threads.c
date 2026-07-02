@@ -6,7 +6,7 @@
 /*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:42:42 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/02 17:13:02 by anselme          ###   ########.fr       */
+/*   Updated: 2026/07/02 18:32:29 by anselme          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,76 +15,60 @@
 #include "config.h"
 #include "coders.h"
 #include "utils.h"
+#include "codexion.h"
 
-void    *exit_threads_init(pthread_t *threads, t_coders_args *configs)
+void    *exit_threads_init(pthread_t *threads)
 {
     free(threads);
-    free(configs);
     return (NULL);
 }
 
-int fill_args(t_config *config, t_coders_args *coders_args, pthread_mutex_t *status_mutex)
+void    fill_args(t_sim *sim, t_coders_args *coders_args)
 {
     size_t  i;
+    size_t  start_time;
 
     i = 0;
-    while (i < config->number_of_coders) {
+    while (i < sim->config.number_of_coders)
+    {
         coders_args[i].id = i + 1;
-        coders_args[i].config = config;
-        if (get_actual_time(&(coders_args[i].start_time)))
-        {
-            free(coders_args);
-            free(status_mutex);
-            return (1);
-        }
-        coders_args[i].status_mutex = status_mutex;
+        coders_args[i].sim = sim;
         i++;
     }
-    return (0);
 }
-t_coders_args   *generate_args(t_config *config)
+t_coders_args   *generate_args(t_sim *sim)
 {
     t_coders_args	*coders_args;
-    pthread_mutex_t *status_mutex;
 
-    coders_args = malloc(sizeof(t_coders_args) * config->number_of_coders);
+    coders_args = malloc(sizeof(t_coders_args) * sim->config.number_of_coders);
     if (!coders_args)
         return (NULL);
-    status_mutex = malloc(sizeof(pthread_mutex_t));
-    if (!status_mutex)
+    if (pthread_mutex_init(&(sim->status_mutex), NULL))
     {
         free(coders_args);
         return (NULL);
     }
-    if (pthread_mutex_init(status_mutex, NULL))
-    {
-        free(status_mutex);
-        free(coders_args);
-        return (NULL);
-    }
-    if (fill_args(config, coders_args, status_mutex))
-    {
-        free(status_mutex);
-        free(coders_args);
-    }
+    fill_args(sim, coders_args);
     return coders_args;
 }
 
 
-pthread_t   *init_threads(t_config *config, t_coders_args *args)
+pthread_t   *init_threads(t_sim *sim, t_coders_args *args)
 {
     size_t			i;
     pthread_t       *threads;
 
-    threads = malloc(sizeof(pthread_t) * config->number_of_coders);
+    threads = malloc(sizeof(pthread_t) * sim->config.number_of_coders);
     if (!threads)
-        return (exit_threads_init(NULL, NULL));
+        return (exit_threads_init(NULL));
     i = 0;
-    while (i < config->number_of_coders) {
+    if (get_actual_time((&sim->start_time)))
+        return (exit_threads_init(threads));
+    while (i < sim->config.number_of_coders) {
         if (pthread_create(
             &(threads[i]), NULL, coder_function, &args[i]
         ))
-            return (exit_threads_init(threads, args));
+            return (exit_threads_init(threads));
         i++;
     }
     return threads;

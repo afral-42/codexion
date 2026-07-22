@@ -3,19 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
+/*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:05 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/02 18:23:05 by anselme          ###   ########.fr       */
+/*   Updated: 2026/07/22 14:51:13 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "config.h"
+#include "codexion.h"
 
-int exit_parsing(t_config *config, char *err)
+int exit_parsing(char *err)
 {
     printf("Error: %s", err);
     return (1);
@@ -23,6 +23,8 @@ int exit_parsing(t_config *config, char *err)
 
 int is_number(char *s)
 {
+    if (*s == '\0')
+        return (0);
     while (*s != '\0') {
         if (!(*s >= '0' && *s <= '9'))
             return (0);
@@ -58,18 +60,17 @@ int parse_config_scheduler(t_config *config, char **av)
 int parse_params(int ac, char **av, t_config *config)
 {
     size_t  	i;
-    int			flag; 
 
     i = 1;
     if (ac != 9)
-        return exit_parsing(config, "invalid arguments");
+        return exit_parsing("invalid arguments");
     while (i < 8) {
         if (!is_number(av[i]))
-            return exit_parsing(config, "time arguments musts be positive numbers");
+            return exit_parsing("time arguments musts be positive numbers");
         i++;
     }
     parse_config_numbers(config, av);
     if (parse_config_scheduler(config, av))
-        return exit_parsing(config, "scheduler must be fifo or edf");
+        return exit_parsing("scheduler must be fifo or edf");
     return (0);
 }

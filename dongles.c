@@ -3,17 +3,91 @@
 /*                                                        :::      ::::::::   */
 /*   dongles.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anselme <anselme@student.42.fr>            +#+  +:+       +#+        */
+/*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:44:18 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/02 17:53:02 by anselme          ###   ########.fr       */
+/*   Updated: 2026/07/22 17:43:20 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include "threads.h"
-#include "dongles.h"
-#include "utils.h"
+#include <unistd.h>
+#include "codexion.h"
+#include <stdio.h>
+
+static int check_disponibility(int coder_id, t_dongle *dongle)
+{
+    size_t      actual_time;
+
+    actual_time = get_actual_time();
+    
+    return (dongle->queue[0].coder_id == coder_id &&
+        dongle->available_at <= actual_time &&
+        dongle->held == FALSE
+    );
+}
+
+static int  wait_dongle(t_sim *sim, int coder_id, t_dongle *dongle)
+{
+    size_t  actual_time;
+
+    while (!check_disponibility(coder_id, dongle) && sim->running)
+    {
+        if (dongle->held == TRUE)
+            pthread_cond_wait(&(dongle->cond), &(dongle->dongle_mutex));
+        actual_time = get_actual_time();
+        if (dongle->available_at > actual_time)
+            usleep((dongle->available_at - actual_time) * 1000);
+    }
+    if (!sim->running)
+    {
+        pthread_mutex_unlock(&(dongle->dongle_mutex));
+        return (1);
+    }
+    dongle->held = TRUE;
+    dongle->queue[0].coder_id = dongle->queue[1].coder_id;
+    dongle->queue[0].burnout_time = dongle->queue[1].burnout_time;
+    dongle->queue[0].created_at = dongle->queue[1].created_at;
+    dongle->queue[1].coder_id = -1;
+    pthread_mutex_unlock(&(dongle->dongle_mutex));
+    return (0);
+}
+
+static void    fill_queue_infos(t_sim *sim, int coder_id, t_ticket *ticket, size_t actual_time)
+{
+    ticket->coder_id = coder_id;
+    ticket->burnout_time = actual_time + sim->config.time_to_burnout;
+    ticket->created_at = actual_time;
+}
+
+int lock_dongle(t_sim *sim, int coder_id, t_dongle *dongle)
+{
+    size_t      actual_time;
+    t_ticket    *queue;
+
+    pthread_mutex_lock(&(dongle->dongle_mutex));
+    queue = dongle->queue;
+    actual_time = get_actual_time();
+    if (queue[0].coder_id == -1)
+        fill_queue_infos(sim, coder_id, &(queue[0]), actual_time);
+    else if (sim->config.scheduler == FIFO)
+        fill_queue_infos(sim, coder_id, &(queue[1]), actual_time);
+    else
+    {
+        if (actual_time + sim->config.time_to_burnout > queue[0].burnout_time)
+            fill_queue_infos(sim, coder_id, &(queue[1]), actual_time);
+        else
+        {
+            fill_queue_infos(
+                sim, queue[0].coder_id, &(queue[1]),
+                queue[0].burnout_time - sim->config.time_to_burnout
+            );
+            fill_queue_infos(sim, coder_id, &(queue[0]), actual_time);
+        }
+    }
+    return (wait_dongle(sim, coder_id, dongle));
+}
+
 
 t_dongle    *init_dongles(size_t count)
 {
@@ -25,14 +99,15 @@ t_dongle    *init_dongles(size_t count)
     if (!dongles)
         return (NULL);
     i = 0;
-    if (get_actual_time(&actual_time)) {
-        free(dongles);
-        return (NULL);
-    }
+    actual_time = get_actual_time();
     while (i < count) {
         pthread_mutex_init(&(dongles[i].dongle_mutex), NULL);
+        pthread_cond_init(&(dongles[i].cond), NULL);
+        dongles[i].held = FALSE;
         dongles[i].available_at = actual_time;
+        dongles[i].queue[0].coder_id = -1;
+        dongles[i].queue[1].coder_id = -1;
         i++;
     }
-    return dongles;
+    return (dongles);
 }

@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:44:18 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 21:46:54 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 22:43:55 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,28 +64,28 @@ static void	fill_queue_infos(
 	ticket->created_at = actual_time;
 }
 
-int	lock_dongle(t_sim *sim, int coder_id, t_dongle *dongle)
+int	lock_dongle(
+	t_sim *sim, int coder_id, t_dongle *dongle, size_t last_compile_time
+)
 {
-	size_t		actual_time;
 	t_ticket	*queue;
 
 	pthread_mutex_lock(&(dongle->dongle_mutex));
 	queue = dongle->queue;
-	actual_time = get_actual_time();
 	if (queue[0].coder_id == -1)
-		fill_queue_infos(sim, coder_id, &(queue[0]), actual_time);
+		fill_queue_infos(sim, coder_id, &(queue[0]), last_compile_time);
 	else if (sim->config.scheduler == FIFO)
-		fill_queue_infos(sim, coder_id, &(queue[1]), actual_time);
+		fill_queue_infos(sim, coder_id, &(queue[1]), last_compile_time);
 	else
 	{
-		if (actual_time + sim->config.time_to_burnout > queue[0].burnout_time)
-			fill_queue_infos(sim, coder_id, &(queue[1]), actual_time);
+		if (last_compile_time + sim->config.time_to_burnout > queue[0].burnout_time)
+			fill_queue_infos(sim, coder_id, &(queue[1]), last_compile_time);
 		else
 		{
 			fill_queue_infos(
 				sim, queue[0].coder_id, &(queue[1]),
 				queue[0].burnout_time - sim->config.time_to_burnout);
-			fill_queue_infos(sim, coder_id, &(queue[0]), actual_time);
+			fill_queue_infos(sim, coder_id, &(queue[0]), last_compile_time);
 		}
 	}
 	return (wait_dongle(sim, coder_id, dongle));

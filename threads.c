@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:42:42 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 21:18:28 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 23:07:20 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,12 @@ int	fill_args(t_sim *sim, t_coders_args *coders_args)
 		coders_args[i].end = FALSE;
 		if (pthread_mutex_init(&(coders_args[i].end_mutex), NULL))
 		{
-			clean_coders_mutexes(coders_args, i);
+			clean_coders_mutexes(coders_args, i, i);
+			return (1);
+		}
+		if (pthread_mutex_init(&(coders_args[i].last_compil_mutex), NULL))
+		{
+			clean_coders_mutexes(coders_args, i + 1, i);
 			return (1);
 		}
 		i++;
@@ -76,6 +81,7 @@ pthread_t	*init_threads(t_sim *sim, t_coders_args *args)
 		return (exit_threads_init(threads, &(sim->status_mutex), NULL));
 	while (i < sim->config.number_of_coders)
 	{
+		args[i].last_compilation = sim->start_time;
 		if (pthread_create(&(threads[i]), NULL, coder_routine, &args[i]))
 			return (exit_threads_init(threads,
 				&(sim->status_mutex), &(sim->running_mutex)));

@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 17:10:01 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 22:06:30 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 23:05:01 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include "codexion.h"
+#include <string.h>
 
 size_t	get_actual_time(void)
 {
@@ -30,9 +31,12 @@ void	print_status(t_coders_args *coder_args, char *status, size_t waiting)
 	size_t	actual_time;
 
 	pthread_mutex_lock(&(coder_args->sim->status_mutex));
-	actual_time = get_actual_time();
-	sim_time = actual_time - coder_args->sim->start_time;
-	printf("%zu %d %s\n", sim_time, coder_args->id + 1, status);
+	if (sim_check(coder_args->sim) || !strcmp(status, "burned out"))
+	{
+		actual_time = get_actual_time();
+		sim_time = actual_time - coder_args->sim->start_time;
+		printf("%zu %d %s\n", sim_time, coder_args->id + 1, status);
+	}
 	pthread_mutex_unlock(&(coder_args->sim->status_mutex));
 	if (waiting)
 		usleep(waiting * 1000);

@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 20:07:39 by anselme           #+#    #+#             */
-/*   Updated: 2026/07/22 21:32:39 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 23:00:30 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,19 +54,19 @@ int	get_dongles(t_sim *sim, int coder_id, t_coders_args *coder_args)
 	right = &(sim->dongles[(coder_id + 1) % sim->config.number_of_coders]);
 	if (coder_id % 2 == 0)
 	{
-		if (lock_dongle(sim, coder_id, left))
+		if (lock_dongle(sim, coder_id, left, last_ct(coder_args)))
 			return (1);
 		print_status(coder_args, "has taken a dongle", 0);
-		if (lock_dongle(sim, coder_id, right))
+		if (lock_dongle(sim, coder_id, right, last_ct(coder_args)))
 			return (1);
 		print_status(coder_args, "has taken a dongle", 0);
 	}
 	else
 	{
-		if (lock_dongle(sim, coder_id, right))
+		if (lock_dongle(sim, coder_id, right, last_ct(coder_args)))
 			return (1);
 		print_status(coder_args, "has taken a dongle", 0);
-		if (lock_dongle(sim, coder_id, left))
+		if (lock_dongle(sim, coder_id, left, last_ct(coder_args)))
 			return (1);
 		print_status(coder_args, "has taken a dongle", 0);
 	}
@@ -75,6 +75,12 @@ int	get_dongles(t_sim *sim, int coder_id, t_coders_args *coder_args)
 
 void	coder_actions(t_sim *sim, t_coders_args *coder_args)
 {
+	size_t		actual_time;
+
+	actual_time = get_actual_time();
+	pthread_mutex_lock(&(coder_args->last_compil_mutex));
+	coder_args->last_compilation = actual_time;
+	pthread_mutex_unlock(&(coder_args->last_compil_mutex));
 	print_status(coder_args, "is compiling", sim->config.time_to_compile);
 	release_dongles(sim, coder_args->id);
 	print_status(coder_args, "is debugging", sim->config.time_to_debug);

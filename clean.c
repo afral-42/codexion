@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 20:08:32 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 21:18:28 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 22:30:29 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,15 +27,20 @@ void	clean_dongle_mutexes(
 	}
 }
 void	clean_coders_mutexes(
-	t_coders_args *args, size_t size
+	t_coders_args *args, size_t end_size, size_t compil_size
 )
 {
 	size_t	i;
 
 	i = 0;
-	while (i < size)
+	while (i < end_size)
 	{
 		pthread_mutex_destroy(&(args[i].end_mutex));
+		i++;
+	}
+	while (i < compil_size)
+	{
+		pthread_mutex_destroy(&(args[i].last_compil_mutex));
 		i++;
 	}
 }

@@ -6,13 +6,23 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/21 12:51:09 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 19:54:54 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 23:19:50 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 #include <unistd.h>
 #include "codexion.h"
+
+size_t	last_ct(t_coders_args *args)
+{
+	size_t	last_compilation;
+
+	pthread_mutex_lock(&(args->last_compil_mutex));
+	last_compilation = args->last_compilation;
+	pthread_mutex_unlock(&(args->last_compil_mutex));
+	return (last_compilation);
+}
 
 static void	*signal_to_coders(t_sim *sim, t_bool error)
 {
@@ -32,21 +42,6 @@ static void	*signal_to_coders(t_sim *sim, t_bool error)
 	return (((void *)error));
 }
 
-static int	check_dead(
-	t_dongle *dongle, t_coders_args *coders, int idx, size_t time
-)
-{
-	int	id;
-
-	id = dongle->queue[idx].coder_id;
-	if (id != -1 && !coders[id].end && time >= dongle->queue[idx].burnout_time)
-	{
-		print_status(&coders[id], "burned out", 0);
-		return (1);
-	}
-	return (0);
-}
-
 static int	check_all_coders(t_sim *sim, t_coders_args *coders, size_t time)
 {
 	size_t	i;
@@ -56,18 +51,17 @@ static int	check_all_coders(t_sim *sim, t_coders_args *coders, size_t time)
 	finished = 0;
 	while (i < sim->config.number_of_coders)
 	{
-		pthread_mutex_lock(&(sim->dongles[i].dongle_mutex));
 		pthread_mutex_lock(&(coders[i].end_mutex));
 		if (coders[i].end)
 			finished++;
-		if (check_dead(&(sim->dongles[i]), coders, 0, time)
-			|| check_dead(&(sim->dongles[i]), coders, 1, time))
+		if (!coders[i].end && 
+			last_ct(&(coders[i])) + sim->config.time_to_burnout <= time
+		)
 		{
-			pthread_mutex_unlock(&(sim->dongles[i].dongle_mutex));
+			print_status(&(coders[i]), "burned out", 0);
 			pthread_mutex_unlock(&(coders[i].end_mutex));
 			return (1);
 		}
-		pthread_mutex_unlock(&(sim->dongles[i].dongle_mutex));
 		pthread_mutex_unlock(&(coders[i].end_mutex));
 		i++;
 	}

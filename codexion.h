@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/21 13:05:07 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 20:41:30 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 21:18:28 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,19 +85,15 @@ void			*coder_routine(void *args);
 t_coders_args	*generate_args(t_sim *sim);
 t_dongle		*init_dongles(size_t count);
 void			*monitor_routine(void *args);
-void			*scheduler_function(void *args);
-t_ticket		*init_scheduler_queue(size_t coders);
+void			*exit_dongle_init(t_dongle *dongles, size_t dongle_len, size_t cond_len);
 void			clean_simulation_mutexes(t_sim *sim);
-void			clean_conds(t_sim *sim, t_coders_args *args);
 void			wait_threads(pthread_t *threads, size_t size);
 pthread_t		*init_threads(t_sim *sim, t_coders_args *args);
-void			subscribe_to_queue(t_sim *sim, int coder_id);
 int				parse_params(int ac, char **av, t_config *config);
-void			clean_dongle_conds(t_sim *sim, t_coders_args *args);
-void			clean_dongle_mutexes(t_sim *sim, t_coders_args *args);
-void			clean_coders_mutexes(t_sim *sim, t_coders_args *args);
+void			clean_dongle_conds(t_dongle *dongles, size_t size);
+void			clean_dongle_mutexes(t_dongle *dongles, size_t size);
+void			clean_coders_mutexes(t_coders_args *args, size_t size);
 int				lock_dongle(t_sim *sim, int coder_id, t_dongle *dongle);
-void			subscribe_to_dongle(t_sim *sim, int coder_id, t_dongle *dongle);
 void			print_status(
 					t_coders_args *coder_args, char *status, size_t waiting);
 

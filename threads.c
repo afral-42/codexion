@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:42:42 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 20:48:16 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 21:18:28 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ void	*exit_threads_init(pthread_t *threads, pthread_mutex_t *status, pthread_mut
 int	fill_args(t_sim *sim, t_coders_args *coders_args)
 {
 	size_t	i;
-	size_t	j;
 
 	i = 0;
 	while (i < sim->config.number_of_coders)
@@ -37,12 +36,8 @@ int	fill_args(t_sim *sim, t_coders_args *coders_args)
 		coders_args[i].end = FALSE;
 		if (pthread_mutex_init(&(coders_args[i].end_mutex), NULL))
 		{
-			j = 0;
-			while (j < i)
-			{
-				pthread_mutex_destroy(&(coders_args[j].end_mutex));
-				j++;
-			}
+			clean_coders_mutexes(coders_args, i);
+			return (1);
 		}
 		i++;
 	}

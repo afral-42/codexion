@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:44:18 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 20:46:27 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 21:26:44 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ static int	wait_dongle(t_sim *sim, int coder_id, t_dongle *dongle)
 	{
 		if (dongle->held == TRUE)
 			pthread_cond_wait(&(dongle->cond), &(dongle->dongle_mutex));
+		else
+			pthread_mutex_unlock(&(dongle->dongle_mutex));
 		actual_time = get_actual_time();
 		if (dongle->available_at > actual_time)
 			usleep((dongle->available_at - actual_time) * 1000);
@@ -102,8 +104,9 @@ t_dongle	*init_dongles(size_t count)
 	while (i < count)
 	{
 		if (pthread_mutex_init(&(dongles[i].dongle_mutex), NULL))
-			return (NULL); // À protéger
-		pthread_cond_init(&(dongles[i].cond), NULL);
+			return (exit_dongle_init(dongles, i, i));
+		if (pthread_cond_init(&(dongles[i].cond), NULL))
+			return (exit_dongle_init(dongles, i + 1, i));
 		dongles[i].held = FALSE;
 		dongles[i].available_at = actual_time;
 		dongles[i].queue[0].coder_id = -1;

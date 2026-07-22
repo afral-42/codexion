@@ -6,12 +6,23 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 20:07:39 by anselme           #+#    #+#             */
-/*   Updated: 2026/07/22 19:54:03 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 21:31:08 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include "codexion.h"
+
+static void release_single_dongle(
+	t_sim *sim, size_t coder_id, t_dongle *dongle, size_t time
+)
+{
+	pthread_mutex_lock(&(dongle->dongle_mutex));
+	dongle->available_at = time + sim->config.dongle_cooldown;
+	dongle->held = FALSE;
+	pthread_cond_broadcast(&(dongle->cond));
+	pthread_mutex_unlock(&(dongle->dongle_mutex));
+}
 
 static void	release_dongles(t_sim *sim, size_t coder_id)
 {
@@ -22,16 +33,16 @@ static void	release_dongles(t_sim *sim, size_t coder_id)
 	actual_time = get_actual_time();
 	left = &(sim->dongles[coder_id]);
 	right = &(sim->dongles[(coder_id + 1) % sim->config.number_of_coders]);
-	pthread_mutex_lock(&(left->dongle_mutex));
-	left->available_at = actual_time + sim->config.dongle_cooldown;
-	left->held = FALSE;
-	pthread_cond_broadcast(&(left->cond));
-	pthread_mutex_unlock(&(left->dongle_mutex));
-	pthread_mutex_lock(&(right->dongle_mutex));
-	right->available_at = actual_time + sim->config.dongle_cooldown;
-	right->held = FALSE;
-	pthread_cond_broadcast(&(right->cond));
-	pthread_mutex_unlock(&(right->dongle_mutex));
+	if (coder_id % 2 == 0)
+	{
+		release_single_dongle(sim, coder_id, left, actual_time);
+		release_single_dongle(sim, coder_id, right, actual_time);
+	}
+	else
+	{
+		release_single_dongle(sim, coder_id, right, actual_time);
+		release_single_dongle(sim, coder_id, left, actual_time);
+	}
 }
 
 int	get_dongles(t_sim *sim, int coder_id, t_coders_args *coder_args)

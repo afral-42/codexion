@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:03 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 20:51:04 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 21:23:01 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,11 +44,12 @@ static int	exit_program(
 	t_sim *sim, t_coders_args *args, pthread_t *threads
 )
 {
-	exit_init(args, sim->dongles, threads);
-	clean_coders_mutexes(sim, args);
-	clean_dongles_mutexes(sim, args);
+	clean_coders_mutexes(args, sim->config.number_of_coders);
+	clean_dongle_mutexes(sim->dongles, sim->config.number_of_coders);
 	clean_simulation_mutexes(sim);
-	clean_dongle_conds(sim, args);
+	clean_dongle_conds(sim->dongles, sim->config.number_of_coders);
+	exit_init(args, sim->dongles, threads);
+	return (0);
 }
 
 int	main(int ac, char **av)
@@ -66,17 +67,17 @@ int	main(int ac, char **av)
 	sim.dongles = init_dongles(sim.config.number_of_coders);
 	if (!sim.dongles)
 	{
-		clean_coders_mutexes(&sim, args);
+		clean_coders_mutexes(args, sim.config.number_of_coders);
 		return (exit_init(args, NULL, NULL));
 	}
 	threads = init_threads(&sim, args);
 	if (!threads)
 	{
-		clean_coders_mutexes(&sim, args);
-		clean_dongles_mutexes(&sim, args);
-		clean_dongle_conds(&sim, args);
+		clean_coders_mutexes(args, sim.config.number_of_coders);
+		clean_dongle_mutexes(sim.dongles, sim.config.number_of_coders);
+		clean_dongle_conds(sim.dongles, sim.config.number_of_coders);
 		return (exit_init(args, sim.dongles, NULL));
 	}
-	wait_threads(threads, sim.config.number_of_coders);
+	wait_threads(threads, sim.config.number_of_coders + 1);
 	exit_program(&sim, args, threads);
 }

@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:44:18 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 22:43:55 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 23:23:38 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,10 @@ int	lock_dongle(
 		fill_queue_infos(sim, coder_id, &(queue[1]), last_compile_time);
 	else
 	{
-		if (last_compile_time + sim->config.time_to_burnout > queue[0].burnout_time)
+		if (
+			(last_compile_time + sim->config.time_to_burnout)
+			> queue[0].burnout_time
+		)
 			fill_queue_infos(sim, coder_id, &(queue[1]), last_compile_time);
 		else
 		{

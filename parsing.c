@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:05 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 22:08:04 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 23:40:08 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ int	exit_parsing(char *err)
 	print_usage();
 	return (1);
 }
-
 
 void	parse_config_numbers(t_config *config, char **av)
 {
@@ -60,8 +59,8 @@ int	is_number(char *s)
 
 int	parse_params(int ac, char **av, t_config *config)
 {
-	size_t bad;
-	
+	size_t	bad;
+
 	if (ac != 9)
 		return (exit_parsing("invalid number of arguments (expected 8)"));
 	bad = validate_numeric_args(av, 1, 7);

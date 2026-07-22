@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 17:10:01 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 23:05:01 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 23:40:52 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ void	print_usage(void)
 
 int	validate_numeric_args(char **av, size_t start, size_t end)
 {
-	size_t i;
+	size_t	i;
 
 	i = start;
 	while (i <= end)

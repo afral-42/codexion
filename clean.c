@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 20:08:32 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 22:30:29 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 23:41:02 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ void	clean_dongle_mutexes(
 		i++;
 	}
 }
+
 void	clean_coders_mutexes(
 	t_coders_args *args, size_t end_size, size_t compil_size
 )

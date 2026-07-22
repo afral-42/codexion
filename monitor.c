@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/21 12:51:09 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 23:19:50 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 23:27:41 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,7 @@ static int	check_all_coders(t_sim *sim, t_coders_args *coders, size_t time)
 		pthread_mutex_lock(&(coders[i].end_mutex));
 		if (coders[i].end)
 			finished++;
-		if (!coders[i].end && 
-			last_ct(&(coders[i])) + sim->config.time_to_burnout <= time
-		)
+		else if (last_ct(&(coders[i])) + sim->config.time_to_burnout <= time)
 		{
 			print_status(&(coders[i]), "burned out", 0);
 			pthread_mutex_unlock(&(coders[i].end_mutex));

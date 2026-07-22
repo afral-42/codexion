@@ -6,14 +6,14 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 20:07:39 by anselme           #+#    #+#             */
-/*   Updated: 2026/07/22 23:00:30 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 23:21:59 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include "codexion.h"
 
-static void release_single_dongle(
+static void	release_single_dongle(
 	t_sim *sim, t_dongle *dongle, size_t time
 )
 {

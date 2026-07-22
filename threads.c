@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:42:42 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 23:07:20 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 23:40:38 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,9 @@
 #include <stdlib.h>
 #include "codexion.h"
 
-void	*exit_threads_init(pthread_t *threads, pthread_mutex_t *status, pthread_mutex_t *running)
+void	*exit_threads_init(
+	pthread_t *threads, pthread_mutex_t *status, pthread_mutex_t *running
+)
 {
 	free(threads);
 	if (status)
@@ -84,12 +86,12 @@ pthread_t	*init_threads(t_sim *sim, t_coders_args *args)
 		args[i].last_compilation = sim->start_time;
 		if (pthread_create(&(threads[i]), NULL, coder_routine, &args[i]))
 			return (exit_threads_init(threads,
-				&(sim->status_mutex), &(sim->running_mutex)));
+					&(sim->status_mutex), &(sim->running_mutex)));
 		i++;
 	}
 	if (pthread_create(&(threads[i]), NULL, monitor_routine, args))
 		return (exit_threads_init(threads,
-			&(sim->status_mutex), &(sim->running_mutex)));
+				&(sim->status_mutex), &(sim->running_mutex)));
 	return (threads);
 }
 

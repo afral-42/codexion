@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:44:18 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 21:26:44 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 21:46:54 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,22 +29,23 @@ static int	check_disponibility(int coder_id, t_dongle *dongle)
 static int	wait_dongle(t_sim *sim, int coder_id, t_dongle *dongle)
 {
 	size_t	actual_time;
+	size_t	duration;
 
 	while (!check_disponibility(coder_id, dongle) && sim_check(sim))
 	{
 		if (dongle->held == TRUE)
 			pthread_cond_wait(&(dongle->cond), &(dongle->dongle_mutex));
-		else
-			pthread_mutex_unlock(&(dongle->dongle_mutex));
 		actual_time = get_actual_time();
 		if (dongle->available_at > actual_time)
-			usleep((dongle->available_at - actual_time) * 1000);
+		{
+			duration = (dongle->available_at - actual_time) * 1000;
+			pthread_mutex_unlock(&(dongle->dongle_mutex));
+			usleep(duration);
+			pthread_mutex_lock(&(dongle->dongle_mutex));
+		}
 	}
-	if (!sim->running)
-	{
-		pthread_mutex_unlock(&(dongle->dongle_mutex));
-		return (1);
-	}
+	if (!sim_check(sim))
+		return (pthread_mutex_unlock(&(dongle->dongle_mutex)) + 1);
 	dongle->held = TRUE;
 	dongle->queue[0].coder_id = dongle->queue[1].coder_id;
 	dongle->queue[0].burnout_time = dongle->queue[1].burnout_time;

@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 17:10:01 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 19:56:18 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 22:06:30 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,4 +46,25 @@ int	sim_check(t_sim *sim)
 	status = sim->running;
 	pthread_mutex_unlock(&(sim->running_mutex));
 	return (status);
+}
+
+void	print_usage(void)
+{
+	printf("Usage: ./codexion number_of_coders time_to_burnout\n");
+	printf("       time_to_compile time_to_debug time_to_refactor\n");
+	printf("       number_of_compiles_required dongle_cooldown scheduler\n");
+}
+
+int	validate_numeric_args(char **av, size_t start, size_t end)
+{
+	size_t i;
+
+	i = start;
+	while (i <= end)
+	{
+		if (!is_number(av[i]))
+			return (i);
+		i++;
+	}
+	return (0);
 }

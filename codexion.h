@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/21 13:05:07 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 21:18:28 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 22:04:45 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,9 @@ void			clean_dongle_conds(t_dongle *dongles, size_t size);
 void			clean_dongle_mutexes(t_dongle *dongles, size_t size);
 void			clean_coders_mutexes(t_coders_args *args, size_t size);
 int				lock_dongle(t_sim *sim, int coder_id, t_dongle *dongle);
+int			is_number(char *s);
+void			print_usage(void);
+int			validate_numeric_args(char **av, size_t start, size_t end);
 void			print_status(
 					t_coders_args *coder_args, char *status, size_t waiting);
 

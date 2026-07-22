@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:05 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 20:45:16 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/22 22:08:04 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,22 +17,11 @@
 
 int	exit_parsing(char *err)
 {
-	printf("Error: %s", err);
+	printf("Error: %s\n", err);
+	print_usage();
 	return (1);
 }
 
-int	is_number(char *s)
-{
-	if (*s == '\0')
-		return (0);
-	while (*s != '\0')
-	{
-		if (!(*s >= '0' && *s <= '9'))
-			return (0);
-		s++;
-	}
-	return (1);
-}
 
 void	parse_config_numbers(t_config *config, char **av)
 {
@@ -56,21 +45,39 @@ int	parse_config_scheduler(t_config *config, char **av)
 	return (0);
 }
 
+int	is_number(char *s)
+{
+	if (*s == '\0')
+		return (0);
+	while (*s != '\0')
+	{
+		if (!(*s >= '0' && *s <= '9'))
+			return (0);
+		s++;
+	}
+	return (1);
+}
+
 int	parse_params(int ac, char **av, t_config *config)
 {
-	size_t	i;
-
-	i = 1;
+	size_t bad;
+	
 	if (ac != 9)
-		return (exit_parsing("invalid arguments"));
-	while (i < 8)
+		return (exit_parsing("invalid number of arguments (expected 8)"));
+	bad = validate_numeric_args(av, 1, 7);
+	if (bad)
 	{
-		if (!is_number(av[i]))
-			return (exit_parsing("time arguments musts be positive numbers"));
-		i++;
+		printf("Error: argument %zu must be a positive integer: '%s'\n",
+			bad, av[bad]);
+		print_usage();
+		return (1);
 	}
 	parse_config_numbers(config, av);
 	if (parse_config_scheduler(config, av))
-		return (exit_parsing("scheduler must be fifo or edf"));
+	{
+		printf("Error: scheduler must be 'fifo' or 'edf' (lowercase)\n");
+		print_usage();
+		return (1);
+	}
 	return (0);
 }

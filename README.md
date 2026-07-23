@@ -99,7 +99,7 @@ To coordinate access to shared resources safely and efficiently, Codexion relies
 Mutexes are deployed extensively to protect critical sections and prevent race conditions on shared states:
 * Each dongle possesses its own `dongle_mutex` protecting its availability state, holder status, and internal queue tickets.
 * Coder arguments (`last_compilation` timestamps and completion flags `end`) are guarded by individual mutexes (`last_compil_mutex` and `end_mutex`).
-* Simulation-wide parameters (`running` state) and log outputs (`status_mutex`) are strictly serialized to avoid race conditions and interleaved terminal text.
+* Simulation-wide parameters (`running` state) and log outputs (`print_mutex`) are strictly serialized to avoid race conditions and interleaved terminal text.
 
 
 * **`pthread_cond_t` (Condition Variables):**
@@ -134,7 +134,7 @@ A dedicated monitor thread loops continuously, polling coder timestamps. If a co
 
 
 * **Log Serialization:**
-All simulation events (`has taken a dongle`, `is compiling`, `is debugging`, `is refactoring`, `burned out`) pass through a central thread-safe printing function wrapped around `status_mutex`, ensuring messages never mix up or interleave on the same line.
+All simulation events (`has taken a dongle`, `is compiling`, `is debugging`, `is refactoring`, `burned out`) pass through a central thread-safe printing function wrapped around `print_mutex`, ensuring messages never mix up or interleave on the same line.
 
 
 

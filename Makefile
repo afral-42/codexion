@@ -6,6 +6,7 @@ SRC         = main.c \
               coders.c \
               dongles.c \
               monitor.c \
+              scheduler.c \
               clean.c \
               utils.c
 

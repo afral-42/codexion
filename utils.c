@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 17:10:01 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/22 23:40:52 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 17:27:17 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,31 +25,39 @@ size_t	get_actual_time(void)
 	return ((actual_time.tv_sec * 1000) + (actual_time.tv_usec / 1000));
 }
 
-void	print_status(t_coders_args *coder_args, char *status, size_t waiting)
+int print_status(t_thread_args *coder_args, char *status, size_t waiting)
 {
 	size_t	sim_time;
 	size_t	actual_time;
 
-	pthread_mutex_lock(&(coder_args->sim->status_mutex));
+	pthread_mutex_lock(&(coder_args->sim->print_mutex));
 	if (sim_check(coder_args->sim) || !strcmp(status, "burned out"))
 	{
 		actual_time = get_actual_time();
 		sim_time = actual_time - coder_args->sim->start_time;
 		printf("%zu %d %s\n", sim_time, coder_args->id + 1, status);
 	}
-	pthread_mutex_unlock(&(coder_args->sim->status_mutex));
-	if (waiting)
-		usleep(waiting * 1000);
+	pthread_mutex_unlock(&(coder_args->sim->print_mutex));
+    if (sim_check(coder_args->sim))
+        return (1);
+    while (waiting)
+    {
+        if (coder_args->sim->status == END)
+            return (1);
+        usleep(1000);
+        waiting--;
+    }
+    return (0);
 }
 
-int	sim_check(t_sim *sim)
+t_bool    sim_check(t_sim *sim)
 {
 	int	status;
 
-	pthread_mutex_lock(&(sim->running_mutex));
-	status = sim->running;
-	pthread_mutex_unlock(&(sim->running_mutex));
-	return (status);
+	pthread_mutex_lock(&(sim->print_mutex));
+	status = sim->status;
+	pthread_mutex_unlock(&(sim->print_mutex));
+	return (status == RUNNING);
 }
 
 void	print_usage(void)

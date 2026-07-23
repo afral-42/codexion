@@ -6,23 +6,13 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 20:07:39 by anselme           #+#    #+#             */
-/*   Updated: 2026/07/22 23:21:59 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 17:26:39 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
+#include <unistd.h>
 #include "codexion.h"
-
-static void	release_single_dongle(
-	t_sim *sim, t_dongle *dongle, size_t time
-)
-{
-	pthread_mutex_lock(&(dongle->dongle_mutex));
-	dongle->available_at = time + sim->config.dongle_cooldown;
-	dongle->held = FALSE;
-	pthread_cond_broadcast(&(dongle->cond));
-	pthread_mutex_unlock(&(dongle->dongle_mutex));
-}
 
 static void	release_dongles(t_sim *sim, size_t coder_id)
 {
@@ -35,45 +25,35 @@ static void	release_dongles(t_sim *sim, size_t coder_id)
 	right = &(sim->dongles[(coder_id + 1) % sim->config.number_of_coders]);
 	if (coder_id % 2 == 0)
 	{
-		release_single_dongle(sim, right, actual_time);
-		release_single_dongle(sim, left, actual_time);
+		release_single_dongle(sim, right, actual_time, TRUE);
+		release_single_dongle(sim, left, actual_time, TRUE);
 	}
 	else
 	{
-		release_single_dongle(sim, left, actual_time);
-		release_single_dongle(sim, right, actual_time);
+		release_single_dongle(sim, left, actual_time, TRUE);
+		release_single_dongle(sim, right, actual_time, TRUE);
 	}
 }
 
-int	get_dongles(t_sim *sim, int coder_id, t_coders_args *coder_args)
+int	get_dongles(t_sim *sim, int coder_id, t_thread_args *coder_args)
 {
 	t_dongle	*left;
 	t_dongle	*right;
 
 	left = &(sim->dongles[coder_id]);
 	right = &(sim->dongles[(coder_id + 1) % sim->config.number_of_coders]);
-	if (coder_id % 2 == 0)
-	{
-		if (lock_dongle(sim, coder_id, left, last_ct(coder_args)))
-			return (1);
-		print_status(coder_args, "has taken a dongle", 0);
-		if (lock_dongle(sim, coder_id, right, last_ct(coder_args)))
-			return (1);
-		print_status(coder_args, "has taken a dongle", 0);
-	}
+    subscribe_dongle(sim, coder_id, left, last_ct(coder_args));
+    subscribe_dongle(sim, coder_id, right, last_ct(coder_args));
+    if (coder_id % 2 == 0)
+        try_lock_dongles(left, right, coder_args);
 	else
-	{
-		if (lock_dongle(sim, coder_id, right, last_ct(coder_args)))
-			return (1);
-		print_status(coder_args, "has taken a dongle", 0);
-		if (lock_dongle(sim, coder_id, left, last_ct(coder_args)))
-			return (1);
-		print_status(coder_args, "has taken a dongle", 0);
-	}
+        try_lock_dongles(left, right, coder_args);
+    print_status(coder_args, "has taken a dongle", 0);
+    print_status(coder_args, "has taken a dongle", 0);
 	return (0);
 }
 
-void	coder_actions(t_sim *sim, t_coders_args *coder_args)
+int coder_actions(t_sim *sim, t_thread_args *coder_args)
 {
 	size_t		actual_time;
 
@@ -81,29 +61,42 @@ void	coder_actions(t_sim *sim, t_coders_args *coder_args)
 	pthread_mutex_lock(&(coder_args->last_compil_mutex));
 	coder_args->last_compilation = actual_time;
 	pthread_mutex_unlock(&(coder_args->last_compil_mutex));
-	print_status(coder_args, "is compiling", sim->config.time_to_compile);
+	if (print_status(coder_args, "is compiling",
+        sim->config.time_to_compile))
+        return (1);
 	release_dongles(sim, coder_args->id);
-	print_status(coder_args, "is debugging", sim->config.time_to_debug);
-	print_status(coder_args, "is refactoring", sim->config.time_to_refactor);
+	if (print_status(coder_args, "is debugging",
+        sim->config.time_to_debug))
+        return (1);
+	if (print_status(coder_args, "is refactoring",
+        sim->config.time_to_refactor))
+        return (1);
+    return (0);
 }
 
 void	*coder_routine(void *args)
 {
-	t_coders_args	*coder_args;
+	t_thread_args	*coder_args;
 	t_config		*conf;
 	t_sim			*sim;
 	size_t			compilations;
 
-	compilations = 0;
-	coder_args = (t_coders_args *)args;
+
+	compilations = -1;
+	coder_args = (t_thread_args *)args;
 	conf = &(coder_args->sim->config);
 	sim = coder_args->sim;
-	while (compilations < conf->number_of_compiles_required && sim_check(sim))
+    while (sim->status == WAITING)
+    {
+        if (sim->status == ERROR)
+            return (NULL);
+    }
+	while (++compilations < conf->number_of_compiles_required && sim_check(sim))
 	{
 		if (get_dongles(sim, coder_args->id, coder_args))
 			return (NULL);
-		coder_actions(sim, coder_args);
-		compilations++;
+		if (coder_actions(sim, coder_args))
+            return (NULL);
 	}
 	pthread_mutex_lock(&(coder_args->end_mutex));
 	coder_args->end = TRUE;

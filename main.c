@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:03 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/23 17:31:34 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 18:32:48 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ int	main(int ac, char **av)
 			sim.config.number_of_coders);
 		return (exit_init(args, NULL));
 	}
-    sim.status = WAITING;
+	sim.status = WAITING;
 	if (init_threads(&sim, args))
 		return (exit_program(&sim, args, FALSE));
 	wait_threads(args, sim.config.number_of_coders + 1);

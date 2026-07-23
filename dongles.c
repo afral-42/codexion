@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:44:18 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/23 18:19:38 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 18:33:17 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,43 +29,43 @@ static int	check_disponibility(int coder_id, t_dongle *dongle)
 int	wait_dongle(t_sim *sim, int coder_id, t_dongle *dongle)
 {
 	if (!check_disponibility(coder_id, dongle) && sim_check(sim))
-    {
-        pthread_mutex_unlock(&(dongle->dongle_mutex));
-        return (1);
-    }
+	{
+		pthread_mutex_unlock(&(dongle->dongle_mutex));
+		return (1);
+	}
 	dongle->held = TRUE;
-    unsubscribe_to_queue(dongle);
+	unsubscribe_to_queue(dongle);
 	pthread_mutex_unlock(&(dongle->dongle_mutex));
 	return (0);
 }
 
-int try_lock_dongles(t_dongle *first, t_dongle *second, t_thread_args *args)
+int	try_lock_dongles(t_dongle *first, t_dongle *second, t_thread_args *args)
 {
-    int flag;
+	int	flag;
 
-    while (1)
-    {
-        if (!sim_check(args->sim))
-            return (1);
-        pthread_mutex_lock(&(first->dongle_mutex));
-        flag = wait_dongle(args->sim, args->id, first);
-        if (flag)
-        {
-		    usleep(1000);
-            continue;
-        }
-        pthread_mutex_lock(&(second->dongle_mutex));
-        flag = wait_dongle(args->sim, args->id, second);
-        if (flag)
-        {
-            release_single_dongle(args->sim, first, 0, FALSE);
-            subscribe_dongle(args->sim, args->id, first, last_ct(args));
-		    usleep(1000);
-            continue;
-        }
-        break;
-    }
-    return (0);
+	while (1)
+	{
+		if (!sim_check(args->sim))
+			return (1);
+		pthread_mutex_lock(&(first->dongle_mutex));
+		flag = wait_dongle(args->sim, args->id, first);
+		if (flag)
+		{
+			usleep(1000);
+			continue ;
+		}
+		pthread_mutex_lock(&(second->dongle_mutex));
+		flag = wait_dongle(args->sim, args->id, second);
+		if (flag)
+		{
+			release_single_dongle(args->sim, first, 0, FALSE);
+			subscribe_dongle(args->sim, args->id, first, last_ct(args));
+			usleep(1000);
+			continue ;
+		}
+		break ;
+	}
+	return (0);
 }
 
 t_dongle	*init_dongles(size_t count)

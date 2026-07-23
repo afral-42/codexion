@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 17:10:01 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/23 18:00:41 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 18:30:07 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ size_t	get_actual_time(void)
 	return ((actual_time.tv_sec * 1000) + (actual_time.tv_usec / 1000));
 }
 
-int print_status(t_thread_args *coder_args, char *status, size_t waiting)
+int	print_status(t_thread_args *coder_args, char *status, size_t waiting)
 {
 	size_t	sim_time;
 	size_t	actual_time;
@@ -38,19 +38,19 @@ int print_status(t_thread_args *coder_args, char *status, size_t waiting)
 		printf("%zu %d %s\n", sim_time, coder_args->id + 1, status);
 	}
 	pthread_mutex_unlock(&(coder_args->sim->print_mutex));
-    if (!sim_check(coder_args->sim))
-        return (1);
-    while (waiting)
-    {
-        if (!sim_check(coder_args->sim))
-            return (1);
-        usleep(1000);
-        waiting--;
-    }
-    return (0);
+	if (!sim_check(coder_args->sim))
+		return (1);
+	while (waiting)
+	{
+		if (!sim_check(coder_args->sim))
+			return (1);
+		usleep(1000);
+		waiting--;
+	}
+	return (0);
 }
 
-t_bool    sim_check(t_sim *sim)
+t_bool	sim_check(t_sim *sim)
 {
 	int	status;
 

@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/21 12:51:09 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/23 17:45:07 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 18:29:34 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ size_t	last_ct(t_thread_args *args)
 	return (last_compilation);
 }
 
-t_sim_status    get_sim_status(t_sim *sim)
+t_sim_status	get_sim_status(t_sim *sim)
 {
-	t_sim_status status;
+	t_sim_status	status;
 
 	pthread_mutex_lock(&(sim->status_mutex));
 	status = sim->status;

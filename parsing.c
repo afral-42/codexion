@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 15:24:05 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/23 18:07:35 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 18:32:13 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,11 +72,11 @@ int	parse_params(int ac, char **av, t_config *config)
 		return (1);
 	}
 	parse_config_numbers(config, av);
-    if (!config->number_of_coders)
-    {
+	if (!config->number_of_coders)
+	{
 		printf("Error: number of coders must be greater than 0\n");
-        return (1);
-    }
+		return (1);
+	}
 	if (parse_config_scheduler(config, av))
 	{
 		printf("Error: scheduler must be 'fifo' or 'edf' (lowercase)\n");

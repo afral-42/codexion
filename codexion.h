@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/21 13:05:07 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/23 17:58:07 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 18:34:24 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,20 +105,21 @@ int				parse_params(int ac, char **av, t_config *config);
 void			clean_dongle_mutexes(t_dongle *dongles, size_t size);
 void			clean_coders_mutexes(t_thread_args *args,
 					size_t end_size, size_t compil_size);
-int	            wait_dongle(t_sim *sim, int coder_id, t_dongle *dongle);
-void            subscribe_dongle(
-	                t_sim *sim, int coder_id, t_dongle *dongle,
-                        size_t last_compile_time);
+int				wait_dongle(t_sim *sim, int coder_id, t_dongle *dongle);
+void			subscribe_dongle(
+					t_sim *sim, int coder_id, t_dongle *dongle,
+					size_t last_compile_time);
 int				is_number(char *s);
 void			print_usage(void);
 int				validate_numeric_args(char **av, size_t start, size_t end);
 int				print_status(
 					t_thread_args *coder_args, char *status, size_t waiting);
-void    		unsubscribe_to_queue(t_dongle *dongle);
+void			unsubscribe_to_queue(t_dongle *dongle);
 void			release_single_dongle(
 					t_sim *sim, t_dongle *dongle, size_t time, t_bool cooldown);
-int				try_lock_dongles(t_dongle *first, t_dongle *second, t_thread_args *args);
-t_sim_status    get_sim_status(t_sim *sim);
-void    		clean_threads_init(t_sim *sim, t_thread_args *args, size_t len);
+int				try_lock_dongles(t_dongle *first,
+					t_dongle *second, t_thread_args *args);
+t_sim_status	get_sim_status(t_sim *sim);
+void			clean_threads_init(t_sim *sim, t_thread_args *args, size_t len);
 
 #endif

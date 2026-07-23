@@ -148,6 +148,9 @@ Balancing `usleep` durations with real-time checks using `gettimeofday()` presen
 Ensuring that no edge cases caused a deadlock—especially when coders contended for overlapping resources under tight cooldowns—required rigorous validation of the lock/unlock sequences inside `get_dongles()` and `release_dongles()`.
 3. **Norm Compliance and Code Splitting:**
 Adhering strictly to the 42 Norm (max 25 lines per function, max 80 columns per line) while handling complex thread initialization loops, custom struct cleanups, and safe error-handling paths required careful decomposition of tasks into modular static helper functions.
+4. **Cooldown cascade:**
+Ensuring that a coder only locks 2 dongle at the same time. Without this security, a dongle can be held during the second dongle cooldown, which leads to cooldown cascades and automatic burnouts.
+
 
 ---
 

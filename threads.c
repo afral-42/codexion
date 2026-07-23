@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:42:42 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/23 17:31:16 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 18:03:14 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,12 @@
 #include <stdlib.h>
 #include "codexion.h"
 
-int exit_threads_init(t_sim *sim, t_bool status, t_bool running)
+int exit_threads_init(t_sim *sim, t_bool print, t_bool status)
 {
+	if (print)
+		pthread_mutex_destroy(&(sim->print_mutex));
 	if (status)
-		pthread_mutex_destroy(&(sim->print_mutex));
-	if (running)
-		pthread_mutex_destroy(&(sim->print_mutex));
+		pthread_mutex_destroy(&(sim->status_mutex));
 	return (1);
 }
 
@@ -53,7 +53,7 @@ t_thread_args	*generate_args(t_sim *sim)
 	t_thread_args	*coders_args;
 
 	coders_args = malloc(
-        sizeof(t_thread_args) * sim->config.number_of_coders + 1);
+        sizeof(t_thread_args) * (sim->config.number_of_coders + 1));
 	if (!coders_args)
 		return (NULL);
 	if (fill_args(sim, coders_args))
@@ -71,23 +71,22 @@ int init_threads(t_sim *sim, t_thread_args *args)
     i = -1;
 	if (pthread_mutex_init(&(sim->print_mutex), NULL))
 		return (exit_threads_init(sim, FALSE, FALSE));
-	if (pthread_mutex_init(&(sim->print_mutex), NULL))
+	if (pthread_mutex_init(&(sim->status_mutex), NULL))
 		return (exit_threads_init(sim, TRUE, FALSE));
+	sim->start_time = get_actual_time();
 	while (++i < sim->config.number_of_coders)
 	{
 		args[i].last_compilation = sim->start_time;
 		if (pthread_create(&(args[i].thread), NULL, coder_routine, &args[i]))
 		{
-            sim->status = ERROR;
-            wait_threads(args, i);
+            clean_threads_init(sim, args, i);
             return (exit_threads_init(sim, TRUE, TRUE));
         }
 	}
-	sim->start_time = get_actual_time();
     sim->status = RUNNING;
 	if (pthread_create(&(args[i].thread), NULL, monitor_routine, args))
     {
-        wait_threads(args, i);
+        clean_threads_init(sim, args, i);
 		return (exit_threads_init(sim, TRUE, TRUE));
     }
     return (0);

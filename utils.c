@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 17:10:01 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/23 17:27:17 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 18:00:41 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,11 @@ int print_status(t_thread_args *coder_args, char *status, size_t waiting)
 		printf("%zu %d %s\n", sim_time, coder_args->id + 1, status);
 	}
 	pthread_mutex_unlock(&(coder_args->sim->print_mutex));
-    if (sim_check(coder_args->sim))
+    if (!sim_check(coder_args->sim))
         return (1);
     while (waiting)
     {
-        if (coder_args->sim->status == END)
+        if (!sim_check(coder_args->sim))
             return (1);
         usleep(1000);
         waiting--;
@@ -54,9 +54,9 @@ t_bool    sim_check(t_sim *sim)
 {
 	int	status;
 
-	pthread_mutex_lock(&(sim->print_mutex));
+	pthread_mutex_lock(&(sim->status_mutex));
 	status = sim->status;
-	pthread_mutex_unlock(&(sim->print_mutex));
+	pthread_mutex_unlock(&(sim->status_mutex));
 	return (status == RUNNING);
 }
 

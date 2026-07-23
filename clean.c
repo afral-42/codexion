@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/22 20:08:32 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/23 16:44:19 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 17:57:43 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void	clean_coders_mutexes(
 void	clean_simulation_mutexes(t_sim *sim)
 {
 	pthread_mutex_destroy(&(sim->print_mutex));
-	pthread_mutex_destroy(&(sim->print_mutex));
+	pthread_mutex_destroy(&(sim->status_mutex));
 }
 
 void	*exit_dongle_init(
@@ -59,4 +59,12 @@ void	*exit_dongle_init(
 	clean_dongle_mutexes(dongles, dongle_len);
 	free(dongles);
 	return (NULL);
+}
+
+void    clean_threads_init(t_sim *sim, t_thread_args *args, size_t len)
+{
+    pthread_mutex_lock(&(sim->status_mutex));
+    sim->status = ERROR;
+    pthread_mutex_unlock(&(sim->status_mutex));
+    wait_threads(args, len);
 }

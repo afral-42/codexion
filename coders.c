@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 20:07:39 by anselme           #+#    #+#             */
-/*   Updated: 2026/07/23 17:26:39 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 17:53:42 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ int	get_dongles(t_sim *sim, int coder_id, t_thread_args *coder_args)
     if (coder_id % 2 == 0)
         try_lock_dongles(left, right, coder_args);
 	else
-        try_lock_dongles(left, right, coder_args);
+        try_lock_dongles(right, left, coder_args);
     print_status(coder_args, "has taken a dongle", 0);
     print_status(coder_args, "has taken a dongle", 0);
 	return (0);
@@ -81,14 +81,13 @@ void	*coder_routine(void *args)
 	t_sim			*sim;
 	size_t			compilations;
 
-
 	compilations = -1;
 	coder_args = (t_thread_args *)args;
 	conf = &(coder_args->sim->config);
 	sim = coder_args->sim;
-    while (sim->status == WAITING)
+    while (get_sim_status(sim) == WAITING)
     {
-        if (sim->status == ERROR)
+        if (get_sim_status(sim) == ERROR)
             return (NULL);
     }
 	while (++compilations < conf->number_of_compiles_required && sim_check(sim))

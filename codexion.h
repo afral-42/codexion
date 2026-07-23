@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/21 13:05:07 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/23 17:27:35 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 17:58:07 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,5 +118,7 @@ void    		unsubscribe_to_queue(t_dongle *dongle);
 void			release_single_dongle(
 					t_sim *sim, t_dongle *dongle, size_t time, t_bool cooldown);
 int				try_lock_dongles(t_dongle *first, t_dongle *second, t_thread_args *args);
-		
+t_sim_status    get_sim_status(t_sim *sim);
+void    		clean_threads_init(t_sim *sim, t_thread_args *args, size_t len);
+
 #endif

@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/30 18:42:42 by abounoua          #+#    #+#             */
-/*   Updated: 2026/07/23 18:31:56 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 20:27:25 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,9 @@ int	init_threads(t_sim *sim, t_thread_args *args)
 			return (exit_threads_init(sim, TRUE, TRUE));
 		}
 	}
+    pthread_mutex_lock(&(sim->status_mutex));
 	sim->status = RUNNING;
+    pthread_mutex_unlock(&(sim->status_mutex));
 	if (pthread_create(&(args[i].thread), NULL, monitor_routine, args))
 	{
 		clean_threads_init(sim, args, i);

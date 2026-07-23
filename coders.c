@@ -6,7 +6,7 @@
 /*   By: abounoua <abounoua@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/01 20:07:39 by anselme           #+#    #+#             */
-/*   Updated: 2026/07/23 18:26:59 by abounoua         ###   ########lyon.fr   */
+/*   Updated: 2026/07/23 20:27:45 by abounoua         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ void	*coder_routine(void *args)
 	{
 		if (get_sim_status(sim) == ERROR)
 			return (NULL);
+        usleep(1000);
 	}
 	while (++compilations < conf->number_of_compiles_required && sim_check(sim))
 	{
